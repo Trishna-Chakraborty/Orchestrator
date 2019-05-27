@@ -22,6 +22,7 @@ public class RPCClient implements AutoCloseable {
         connection = factory.newConnection();
         channel = connection.createChannel();
         replyQueueName="REPLY_QUEUE";
+        channel.queueDeclare(replyQueueName, false, false, false, null);
 
     }
 
@@ -39,6 +40,34 @@ public class RPCClient implements AutoCloseable {
                 .build();
 
         channel.basicPublish(exchangeName, "", props,message.getBytes("UTF-8"));
+
+        final BlockingQueue<String> response = new ArrayBlockingQueue<>(1);
+
+        String ctag = channel.basicConsume(replyQueueName, true, (consumerTag, delivery) -> {
+            if (delivery.getProperties().getCorrelationId().equals(corrId)) {
+                response.offer(new String(delivery.getBody(), "UTF-8"));
+            }
+        }, consumerTag -> {
+        });
+
+        String result = response.take();
+        channel.basicCancel(ctag);
+        return result;
+    }
+
+
+
+    public String emitMessage(String message, String exchangeName,String bindingKey) throws IOException, InterruptedException {
+        final String corrId = UUID.randomUUID().toString();
+
+        AMQP.BasicProperties props = new AMQP.BasicProperties
+                .Builder()
+                .correlationId(corrId)
+                .replyTo(replyQueueName)
+                .deliveryMode(2)
+                .build();
+
+        channel.basicPublish(exchangeName, bindingKey, props,message.getBytes("UTF-8"));
 
         final BlockingQueue<String> response = new ArrayBlockingQueue<>(1);
 
