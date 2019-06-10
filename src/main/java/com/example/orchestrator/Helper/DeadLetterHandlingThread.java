@@ -1,4 +1,4 @@
-package com.example.orchestrator;
+package com.example.orchestrator.Helper;
 
 import com.rabbitmq.client.*;
 
@@ -6,7 +6,7 @@ public class DeadLetterHandlingThread implements Runnable{
 
     Thread t;
     String name;
-    DeadLetterHandlingThread(String name){
+    public DeadLetterHandlingThread(String name){
          t= new Thread(this);
          t.start();
      }

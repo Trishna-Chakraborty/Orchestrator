@@ -1,4 +1,4 @@
-package com.example.orchestrator;
+package com.example.orchestrator.Helper;
 
 import com.rabbitmq.client.*;
 

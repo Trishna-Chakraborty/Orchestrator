@@ -1,4 +1,4 @@
-package com.example.orchestrator;
+package com.example.orchestrator.Model;
 
 import com.sun.javafx.beans.IDProperty;
 
